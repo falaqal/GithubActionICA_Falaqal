@@ -1,0 +1,44 @@
+name: Java CI with Gradle
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - '*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+      - name: Grant execute permission
+        run: chmod +x gradlew
+      - name: Build
+        run: ./gradlew build
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+      - name: Grant execute permission
+        run: chmod +x gradlew
+      - name: Conditional Test Run
+        run: |
+          BRANCH=$(echo "${{ github.ref }}" | sed 's/refs\/heads\///')
+          if [ "$BRANCH" == "main" ]; then
+            ./gradlew test
+          else
+            ./gradlew test --tests org.example.AppTest
+          fi
